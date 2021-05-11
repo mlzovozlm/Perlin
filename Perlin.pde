@@ -1,5 +1,9 @@
 int x; //<>// //<>//
 int y;
+
+//for 2 NoiseSet mode, the 2nd set will be offsetX and offsetY to the right & down
+int offsetX = 60;
+int offsetY = 30;
 /*
 Modify number down below to tweak
 SPACE to generate new map
@@ -42,8 +46,8 @@ int UPPER_CLOSED = 50;
 int UPPER_SHALLOW = 70;
 int UPPER_SAND = 80;
 int UPPER_SOIL = 105;
-int UPPER_FOREST = 135;
-int UPPER_HILL = 155;
+int UPPER_FOREST = 190;
+int UPPER_HILL = 200;
 //------------------------------------------------------------------------------------------
 void setup() {
   size(576, 576);
@@ -99,15 +103,17 @@ int getDistanceToEdge( int x, int y, int width, int height ) {
   }
   return min;
 }
+//draw with 1 NoiseSet
+/*
 void drawTerrain() {
   //noiseSeed(seed);
   noiseSeed(millis());
   int centerX = width / 2;
   int centerY = height / 2;
-  for (x = 0; x <= width/tileSize; x++) {
+  for (x = 0; x <= width/tileSize - 1; x++) {
     float distanceX = sq(centerX - x);
 
-    for (y= 0; y <= height/tileSize; y++) {
+    for (y= 0; y <= height/tileSize - 1; y++) {
       float distanceY = sq(centerY - y);
       float distanceToCenter = sqrt(distanceX + distanceY);
       //gradient noise from center - the further out, the brighter (stronger)
@@ -117,6 +123,32 @@ void drawTerrain() {
       float tileHeightNoise = noise(x * globalNoiseScale, y * globalNoiseScale) - distanceToCenterNoise;
       if (tileHeightNoise < 0) 
         tileHeightNoise = 0;
+      tileHeightNoise = makeMask( width, height, x, y, tileHeightNoise);
+      float tileHeight = tileHeightNoise * 255;
+      color c = pickColor(tileHeight);
+      fill(c);
+      rect(x * tileSize, y * tileSize, tileSize, tileSize);
+    }
+  }
+}
+*/
+//draw with 2 NoiseSets
+void drawTerrain(){
+  float[][] firstNoise = new float[width][height];
+  float[][] secondNoise = new float[width][height];
+  firstNoise = generateNoise(0,0,firstNoise);
+  secondNoise = generateNoise(offsetX,offsetY, secondNoise);
+  for (x = 0; x <= width/tileSize - 1; x++) {
+
+    for (y= 0; y <= height/tileSize - 1; y++) {
+      float tileHeightNoise = firstNoise[x][y] + secondNoise[x][y];
+      //combine
+      tileHeightNoise = makeMask( width, height, x, y, tileHeightNoise);
+      if (tileHeightNoise < 0) 
+        tileHeightNoise = 0;
+      if(tileHeightNoise > 255)
+        tileHeightNoise = 255;
+      //make mask
       tileHeightNoise = makeMask( width, height, x, y, tileHeightNoise);
       float tileHeight = tileHeightNoise * 255;
       color c = pickColor(tileHeight);
@@ -135,4 +167,28 @@ void keyPressed() {
   }
 }
 void draw() {
+}
+
+float[][] generateNoise(int offsetX, int offsetY, float[][] noise) {
+  noiseSeed(millis());
+  int centerX = width / 2 + offsetX;
+  int centerY = height / 2 + offsetY;
+  for (x = offsetX; x <= width/tileSize - 1; x++) {
+    float distanceX = sq(centerX - x);
+
+    for (y= offsetY; y <= height/tileSize - 1; y++) {
+      float distanceY = sq(centerY - y);
+      float distanceToCenter = sqrt(distanceX + distanceY);
+      //gradient noise from center - the further out, the brighter (stronger)
+      float distanceToCenterNoise = distanceToCenter / width + modGradientNoise;
+
+      //1 continent mode
+      float tileHeightNoise = noise(x * globalNoiseScale, y * globalNoiseScale) - distanceToCenterNoise;
+      if (tileHeightNoise < 0) 
+        tileHeightNoise = 0;
+      
+      noise[x][y] = tileHeightNoise;
+    }
+  }
+  return noise;
 }
