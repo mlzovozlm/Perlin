@@ -17,11 +17,11 @@ Modify number down below to tweak
  */
 int heightSeed = 48555561;
 //perlin noise scale
-float globalHeightScale = 0.02; //work best in 0.005-0.03
+float globalHeightScale = 0.017; //work best in 0.005-0.03
 //increase(> 0) or decrease (< 0) the noise of calculated gradient noise 
 float modGradientNoise = -0.01;
 //to smooth out map edge
-int edgeOutterBound = 20;
+int edgeOutterBound = 0;
 int edgeInnerBound = 50;
 
 //color code in rgb
@@ -36,15 +36,15 @@ color Deep = color(51, 112, 204);
 
 //upper bound of tile type (0-1)
 float FLOOR_CLOSED = 0.02;
-float FLOOR_SHALLOW = 0.1;
-float FLOOR_SAND = 0.15;
-float FLOOR_SOIL = 0.18;
-float FLOOR_FOREST = 0.23;
-float FLOOR_HILL = 0.4;
-float FLOOR_MOUNTAIN = 0.45;
+float FLOOR_SHALLOW = 0.15;
+float FLOOR_SAND = 0.3;
+float FLOOR_SOIL = 0.3858;
+float FLOOR_FOREST = 0.4555524;
+float FLOOR_HILL = 0.799155;
+float FLOOR_MOUNTAIN = 0.8515;
 //------------------------------------------------------------------------------------------
 void setup() {
-  size(576, 576);
+  size(1000, 1000);
   noStroke();
   drawTerrain();
 }
@@ -82,7 +82,7 @@ float applyMask(int width, int height, int x, int y, float oldValue) {
   }
 }
 //draw with 1 NoiseSet
-
+/*
 void drawTerrain() {
  //noiseSeed(heightSeed);
  noiseSeed(millis());
@@ -108,10 +108,10 @@ void drawTerrain() {
  }
  }
  }
-
+*/
 
 //draw with 2 NoiseSets
-/*
+
 void drawTerrain() {
   float[][] firstNoise = new float[width][height];
   float[][] secondNoise = new float[width][height];
@@ -131,7 +131,7 @@ void drawTerrain() {
     }
   }
 }
-*/
+
 //press BACKSPACE to generate new map
 //press ENTER to save map
 void keyPressed() {
